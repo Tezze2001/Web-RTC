@@ -1,0 +1,387 @@
+<body>
+    <script src="https://unpkg.com/peerjs@1.2.0/dist/peerjs.min.js"></script>
+
+    <div id="form-connessione" class="container">
+        <div class="row">
+            <div class="col">
+            </div>
+            <div class="col-6">
+                <center>
+                <div id="forms" class="card" style="width: 18rem;">
+                    <!-- form di login -->
+                    <div id="Login" class="card-body">
+                        <h5 class="card-title">Loggati</h5>
+                        <form>
+                            <div class="form-group">
+                                <label for="Login-Nome">Nome</label>
+                                <input type="text" class="form-control" id="Login-Nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="Login-Password">Password</label>
+                                <input type="password" class="form-control" id="Login-Password" required>
+                            </div>
+                            <label id="lReg">Clicca qui per registrarti</label><br>
+                            <button id="Login-bLogin" type="button" class="btn btn-primary">Login</button>
+                        </form>
+                    </div>
+                    <!-- form di registrazione -->
+                    <div id="Registrati" class="card-body">
+                        <h5 class="card-title">Registrati</h5>
+                        <form>
+                            <div class="form-group">
+                                <label for="Registrati-Nome">Nome</label>
+                                <input type="text" class="form-control" id="Registrati-Nome" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="Registrati-Password">Password</label>
+                                <input type="password" class="form-control" id="Registrati-Password" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="Registrati-CoPassword">Ripeti password</label>
+                                <input type="password" class="form-control" id="Registrati-CoPassword" required>
+                            </div>
+                            <label id="lLog">Clicca qui per loggarti</label><br>
+                            <button id="Registrati-bRegistrati" disabled type="button" class="btn btn-primary">Registrati</button>
+                        </form>
+                    </div>
+                </div>
+                <div id="Connessione" class="card" style="width: 18rem;">
+                    <div class="card-body">
+                        <h5 class="card-title">Chiama un altro utente</h5>
+                        <div>
+                            <div class="form-group">
+                                <label for="connettiti">Destinatario</label>
+                                <input type="text" class="form-control" id="connettiti">
+                            </div>
+                            <button id="chiama" type="button" class="btn btn-primary">Connetti</button>
+                        </div>
+                    </div>
+                </div>
+                </center>
+            </div>
+            <div class="col">
+            </div>
+        </div>
+    </div>
+
+
+
+    <div id="form-chat">
+        <div class="container">
+            <div class="row" style="height: 50%;">
+                <div class="col">
+                    <video id='remoto' autoplay="true" width="100%" height="100%" style=""></video>
+                            
+                            <!--    <video id='locale' autoplay="true" width="100%" height="100%"  style="position: absolute; margin-left: -237px; margin-top: 470px;"></video>-->
+                </div>
+                <div class="col">
+                    <video id='locale' autoplay="true" width="100%" height="100%"  style=""></video>
+                </div>
+            </div>
+            <div class="row" style="max-height:50%;">
+                <div class="col">
+                        <div>
+                            <input type="text" id="messaggio">
+                            <input type="button" id="send" value="send">
+                        </div>
+                        <div data-spy="scroll" id="chatting" style="overflow: scroll; max-height: 200px;">
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        /**
+         * Funzione per la connessione alla rete p2p
+         * 
+         * @return {object} io oggetto di tipo Peer appena creato
+         * */
+        function CreaPeer()
+        {
+            // peer creation
+            let io = new Peer({
+                host: 'localhost',
+                port: 9000,
+                path: '/myapp'
+            }); 
+            return io;
+        }
+
+        function connect(data)
+        {
+            conn = peer.connect(data);
+
+            conn.on('open', function() {
+                console.log('connessione aperta');
+
+                var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                console.log(getUserMedia);
+                getUserMedia({video: true, audio: false}, function(stream) {
+                        var call = peer.call(data, stream);
+                        call.on('stream', function(remoteStream) {
+                            document.getElementById('locale').srcObject=stream;
+                            document.getElementById('remoto').srcObject=remoteStream;
+                        });
+                    }, function(err) {
+                        console.error('Failed to get local stream' ,err);
+                });
+                $('#form-connessione').hide();
+                $('#form-chat').show();
+                console.log('connessione aperta');
+                // button submit event
+                
+                $('#send').click(function (){
+                    if ($('#messaggio').val() !== "")
+                    {   
+                        // Send messages
+                        conn.send($('#messaggio').val());
+                        $('#chatting').append('<option value="">Me: '+$('#messaggio').val()+'</option>');
+                        $("#chatting").scrollTop($("#chatting").prop("scrollHeight"));
+                    }
+                    else 
+                    {
+                        console.error('id non valido');
+                    }
+                });
+            
+                // Receive messages
+                conn.on('data', function(data) {
+                    $('#chatting').append('<option value="">Guest: '+data+'</option>');
+                        $("#chatting").scrollTop($("#chatting").prop("scrollHeight"));
+                });
+            });
+        }
+
+        /**
+         *
+         * */
+        function dataRetrieve(data)
+        {
+            //console.log({Nome: Nome, Password: Password, Id: Id, Tipo: Tipo, data: {data}});
+            if(data.length==36)
+            {
+                connect(data);
+                $('#Connessione').hide();
+            }
+            else if (data.localeCompare("0")===0)
+            {
+                $('#forms').hide();
+                $('#Connessione').show();
+            }
+            else
+            {
+                alert('Errore');
+            }
+        }
+
+        /**
+         * Funzione per effettuare richieste ajax tramite POST alla pagina php che gestisce il DB
+         *
+         * @param {string} Nome dell'utente
+         * @param {string} Password dell'utente
+         * @param {string} Id della nuova connessione p2p
+         * @param {string} Tipo di query da effettuare sul DB
+         *
+         * */
+        function Richiesta(Nome, Password, Id, Tipo)
+        {
+            
+            var mio = $.post({
+                url: 'http://tezze20.altervista.org/WebRTC/DB.php',
+                data: {Nome: Nome, Password: Password, Id: Id, Tipo: Tipo}
+            }).done(function (data){dataRetrieve(data);});
+        }
+
+        /**
+         * Funzione per inserire il nuovo utente registrato
+         *  
+         * @param {string} nome del nuovo utente
+         * @param {string} password del nuovo utente
+         * @param {string} id del nuovo utente connesso alla rete p2p
+         *
+         * */
+
+        function InsertDB(nome, password, Id)
+        {
+            Richiesta(nome, password, Id, 0);
+        }
+
+        /**
+         * Funzione per trovare l'utente che vuole loggarsi
+         *  
+         * @param {string} nome dell'utente
+         * @param {string} password dell'utente
+         * @param {string} id aggiornato della nuova connessione p2p
+         *
+         * */
+        function SelectDB(nome, password, Id)
+        {
+            Richiesta(nome, password, Id, 1);
+        }
+
+        /**
+         * Funzione per trovare il destinatario della chiamata
+         *  
+         * @param {string} nome dell'utente
+         *
+         * */
+        async function SelectDestinatarioDB(nome)
+        {
+            return Richiesta(nome, "", "", 2);
+        }
+        /**
+         * Funzione per comparare le password
+         * 
+         * @param {string} pass1 Prima pass
+         * @param {string} pass2 Seconda pass
+         * 
+         * @return true password uguali
+         * @return false password diverse
+         * */
+        function Match(pass1, pass2)
+        {
+            if (pass1.localeCompare(pass2)===0)
+                return true;
+            else
+                return false;
+        }
+
+        const peer = CreaPeer();
+        var conn
+
+        /**
+         * Gestione dell'interfaccia con jQuery
+         * */
+        $(document).ready(function (){
+            $('#Registrati-bRegistrati').attr("disabled", true);
+            $('#Registrati').hide();
+            $('#form-chat').hide();
+            $('#Connessione').hide();
+
+            $('#lReg').click(function (){
+                $('#Login').hide();
+                $('#Registrati').show();
+            });
+            $('#lLog').click(function (){
+                $('#Login').show();
+                $('#Registrati').hide();
+            });
+            $('#Registrati-bRegistrati').click(function (){
+                $('#Registrati-bRegistrati').append('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                InsertDB($('#Registrati-Nome').val(),$('#Registrati-Password').val(), peer.id);
+            });
+            $('#Login-bLogin').click(function (){
+                $('#Login-bLogin').append('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>');
+                SelectDB($('#Login-Nome').val(),$('#Login-Password').val(), peer.id);
+            });
+
+            $('#Registrati-CoPassword').keyup(function (){
+                // match delle password
+                if (Match($('#Registrati-Password').val(),$('#Registrati-CoPassword').val()))
+                {
+                    $('#Registrati-bRegistrati').attr("disabled", false);
+                }
+                else
+                {
+                    $('#Registrati-bRegistrati').attr("disabled", true);
+                }
+            });
+            $('#Registrati-Password').keyup(function (){
+                // match delle password
+                if (Match($('#Registrati-Password').val(),$('#Registrati-CoPassword').val()))
+                {
+                    $('#Registrati-bRegistrati').attr("disabled", false);
+                }   
+                else
+                {
+                    $('#Registrati-bRegistrati').attr("disabled", true);
+                }
+            });
+
+
+
+            
+            // Evento della creazione del peer
+            peer.on('open', function(id) {
+                console.log('My peer ID is: ' + id);
+            });
+
+            // Evendo onclick del bottone di connessione con un altro peer
+            $('#chiama').click(function (){
+                if ($('#connettiti').val() !== "")
+                {
+                    /*console.log({Id: SelectDestinatarioDB($('#connettiti').val())});
+                    
+                    conn = peer.connect(SelectDestinatarioDB($('#connettiti').val()));*/
+
+                    console.log({ID: SelectDestinatarioDB($('#connettiti').val())});
+                    // recieve open event
+                    
+                }
+                else 
+                {
+                    console.error('id non valido');
+                }
+            });
+            /*
+            $('#call').click(function(){
+                var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+                getUserMedia({video: true, audio: false}, function(stream) {
+                    var call = peer.call($('#connettiti').val(), stream);
+                    call.on('stream', function(remoteStream) {
+                        document.getElementById('locale').srcObject=stream;
+                        document.getElementById('remoto').srcObject=remoteStream;
+                    });
+                    }, function(err) {
+                    console.error('Failed to get local stream' ,err);
+                });
+            });*/
+            // recieve connection event
+            peer.on('connection', function(conn) {
+                // connection open event
+                conn.on('open', function() {
+                    $('#form-connessione').hide();
+                    $('#form-chat').show();
+                    console.log('connessione aperta');
+
+                    // button submit event
+                    $('#send').click(function (){
+                        if ($('#messaggio').val() !== "")
+                        {   
+                            // Send messages
+                            conn.send($('#messaggio').val());
+                            $('#chatting').append('<option value="">Me: '+$('#messaggio').val()+'</option>');
+                            $("#chatting").scrollTop($("#chatting").prop("scrollHeight"));
+                        }
+                        else 
+                        {
+                            console.error('id non valido');
+                        }
+                    });
+                    
+                    // Receive messages
+                    conn.on('data', function(data) {
+                        $('#chatting').append('<option value="">Guest: '+data+'</option>');
+                        $("#chatting").scrollTop($("#chatting").prop("scrollHeight"));
+                    });
+
+                });
+            });
+
+            var getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+            peer.on('call', function(call) {
+                getUserMedia({video: true, audio: false}, function(stream) {
+                    call.answer(stream); // Answer the call with an A/V stream.
+                    call.on('stream', function(remoteStream) {
+                        document.getElementById('locale').srcObject=stream;
+                        document.getElementById('remoto').srcObject=remoteStream;
+                    });
+                }, function(err) {
+                    console.log('Failed to get local stream' ,err);
+                });
+            });
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+</body>
