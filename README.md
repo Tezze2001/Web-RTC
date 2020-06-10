@@ -137,7 +137,6 @@ La base dati non è per niente complicata, esiste solo una tabella con i seguent
 | Tipo | int(11) | text | varchar(62) | text | 
 | Constrain | PK | NOT NULL, UNIQUE | NOT NULL | NOT NULL |
 | Descrizione | Valore univoco che identifica l'utente | Nome dell'utente | Hash della password (PASSWORD_BCRYPT) | Valore univoco ottenuto dalla connessione alla rete P2P | 
-| - | -------- | -------------- | -------------- | -------------- |
 
 ### Connessione alla rete P2P
 
