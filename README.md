@@ -409,4 +409,6 @@ conn.on('data', function(data) {
 ---
 ## Diagramma casi d'uso
 
+Ecco il diagramma dei casi d'uso dell'applicazione
+
 ![UML](http://tezze20.altervista.org/WebRTC/Uml.png)
