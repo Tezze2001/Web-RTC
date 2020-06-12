@@ -48,10 +48,10 @@ Backend:
 ```php
 
 <?php
-	header("Access-Control-Allow-Origin: *");
-	require('Credenziali.php');
-	if (!empty($_POST['Nome']) && !empty($_POST['Password']) && !empty($_POST['Id']) && isset($_POST['Tipo']))
-	{
+header("Access-Control-Allow-Origin: *");
+require('Credenziali.php');
+if (!empty($_POST['Nome']) && !empty($_POST['Password']) && !empty($_POST['Id']) && isset($_POST['Tipo']))
+{
     	/* CONNESIONE AL DB */
         $conn = new mysqli($nomehost, $nomeuser, $password, $dbname);	
         // Check connection
