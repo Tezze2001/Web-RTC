@@ -414,3 +414,8 @@ conn.on('data', function(data) {
 Ecco il diagramma dei casi d'uso dell'applicazione
 
 ![UML](http://tezze20.altervista.org/WebRTC/Uml.png)
+
+---
+## Function Points
+
+Ecco il calcolo dei [Function Points](https://docs.google.com/spreadsheets/d/1M1lvGJNqLAfyBW4cOUL9Z8jWAp4Q0IMQSXs8J7TPPjs/edit?usp=sharing)
