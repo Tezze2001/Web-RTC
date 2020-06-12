@@ -47,10 +47,10 @@ Gli utenti vengo inseriti nel form precedente e vengono gestiti dal server Apach
 Backend:
 ```php
 <?php
- 	header("Access-Control-Allow-Origin: *");
+	header("Access-Control-Allow-Origin: *");
 	require('Credenziali.php');
 	if (!empty($_POST['Nome']) && !empty($_POST['Password']) && !empty($_POST['Id']) && isset($_POST['Tipo']))
-    {
+	{
     	/* CONNESIONE AL DB */
         $conn = new mysqli($nomehost, $nomeuser, $password, $dbname);	
         // Check connection
