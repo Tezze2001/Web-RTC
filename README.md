@@ -4,7 +4,7 @@
 ## Funzionamento
 Questo progetto si basa sulla tecnologia WebRTC ([per maggiori informazioni](https://docs.google.com/presentation/d/1it7Ii2G2cgAdgBr-aEk-OKq7BTjUEyPIJHsqIb6RRCg/edit?usp=sharing)).
 
-L'applicazione si basa sul funzionamento di una libreria: [PeerJs](https://peerjs.com/)
+L'applicazione si basa sul funzionamento di una libreria: [PeerJs](https://peerjs.com/).
 Il Funzionamento dell'applicazione si può riassumere in delle semplici sezioni:
 
 ### Connessione al server
