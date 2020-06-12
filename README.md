@@ -46,6 +46,7 @@ Gli utenti vengo inseriti nel form precedente e vengono gestiti dal server Apach
 
 Backend:
 ```php
+
 <?php
 	header("Access-Control-Allow-Origin: *");
 	require('Credenziali.php');
